@@ -16,6 +16,7 @@ import (
 
 type Todo struct {
 	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	UserID    string             `json:"userID,omitempty" bson:"userID,omitempty"`
 	Completed bool               `json:"completed"`
 	Body      string             `json:"body"`
 }
@@ -54,6 +55,11 @@ func main() {
 
 	app := fiber.New()
 
+	// app.Use(cors.New(cors.Config{
+	// 	AllowOrigins: "http://localhost:5173",
+	// 	AllowHeaders: "Origin,Content-Type,Accept,User-Id",
+	// }))
+
 	// Serve static files in production
 	if os.Getenv("ENV") == "production" {
 		app.Static("/", "./frontend/dist")
@@ -77,10 +83,17 @@ func main() {
 }
 
 func getTodos(c *fiber.Ctx) error {
+	// Retrieve the UUID of the requesting user from the request headers
+	userID := c.Get("User-Id")
+	if userID == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
 	var todos []Todo
 
-	cursor, err := collection.Find(context.Background(), bson.M{})
+	filter := bson.M{"userID": userID}
 
+	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
 		return err
 	}
@@ -95,7 +108,7 @@ func getTodos(c *fiber.Ctx) error {
 		todos = append(todos, todo)
 	}
 
-	return c.JSON(todos)
+	return c.Status(200).JSON(todos)
 }
 
 func createTodo(c *fiber.Ctx) error {
@@ -109,6 +122,10 @@ func createTodo(c *fiber.Ctx) error {
 	if todo.Body == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Todo body cannot be empty"})
 	}
+
+	userId := c.Get("User-Id")
+
+	todo.UserID = userId
 
 	insertResult, err := collection.InsertOne(context.Background(), todo)
 	if err != nil {

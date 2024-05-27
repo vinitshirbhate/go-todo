@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import theme from "./theme/theme.ts";
+import theme from "./utils/theme.ts";
 
 const queryClient = new QueryClient();
 

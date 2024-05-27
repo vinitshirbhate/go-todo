@@ -1,7 +1,7 @@
 import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
 import TodoItem from "./TodoItem";
 import { useQuery } from "@tanstack/react-query";
-import { BASE_URL } from "../App";
+import { axiosInstance } from "../App";
 
 export type Todo = {
   _id: number;
@@ -14,17 +14,13 @@ const TodoList = () => {
     queryKey: ["todos"],
 
     queryFn: async () => {
-      try {
-        const res = await fetch(BASE_URL + "/todos");
-        const data = await res.json();
+      const { data } = await axiosInstance.get("/todos");
 
-        if (!res.ok) {
-          throw new Error(data.error || "something went wrong");
-        }
-        return data || [];
-      } catch (error) {
-        console.log(error);
+      if (!data) {
+        throw new Error("No data received from the server");
       }
+
+      return data;
     },
   });
 

@@ -2,7 +2,7 @@ import { Button, Flex, Input, Spinner } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
-import { BASE_URL } from "../App";
+import { axiosInstance } from "../App";
 
 const TodoForm = () => {
   const [newTodo, setNewTodo] = useState("");
@@ -14,19 +14,15 @@ const TodoForm = () => {
     mutationFn: async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        const res = await fetch(BASE_URL + `/todos`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ body: newTodo }),
+        const { data } = await axiosInstance.post(`/todos`, {
+          body: newTodo,
         });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "something went wrong");
+        setNewTodo("");
+
+        if (!data) {
+          throw new Error("No data received from the server");
         }
 
-        setNewTodo("");
         return data;
       } catch (error) {
         console.log(error);
