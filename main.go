@@ -54,10 +54,14 @@ func main() {
 
 	app := fiber.New()
 
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins: "http://localhost:5173",
-	// 	AllowHeaders: "Origin,Content-Type,Accept",
-	// }))
+	// Serve static files in production
+	if os.Getenv("ENV") == "production" {
+		app.Static("/", "./frontend/dist")
+	} else {
+		app.Get("/", func(c *fiber.Ctx) error {
+			return c.SendString("Hello, this is the API root!")
+		})
+	}
 
 	app.Get("/api/todos", getTodos)
 	app.Post("/api/todos", createTodo)
@@ -69,12 +73,7 @@ func main() {
 		port = "5000"
 	}
 
-	if os.Getenv("ENV") == "production" {
-		app.Static("/", "./client/dist")
-	}
-
 	log.Fatal(app.Listen("0.0.0.0:" + port))
-
 }
 
 func getTodos(c *fiber.Ctx) error {
@@ -138,7 +137,6 @@ func updateTodo(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(fiber.Map{"success": true})
-
 }
 
 func deleteTodo(c *fiber.Ctx) error {
