@@ -26,6 +26,7 @@ func main() {
 	fmt.Println("hello world")
 
 	err := godotenv.Load(".env")
+	
 	if err !=nil{
 		log.Fatal("error loading .env file: ",err)
 	}
@@ -41,6 +42,7 @@ func main() {
 	defer client.Disconnect(context.Background())
 
 	err = client.Ping(context.Background(),nil)
+
 	if err !=nil{
 		log.Fatal(err)
 	}
@@ -61,6 +63,7 @@ func main() {
 	if PORT == ""{
 		PORT = "5000"
 	}
+
 	log.Fatal(app.Listen("0.0.0.0:"+PORT))
 }
 
