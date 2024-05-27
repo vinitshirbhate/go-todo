@@ -72,9 +72,11 @@ func main() {
 		PORT = "5000"
 	}
 
-	if os.Getenv("ENV") == "production"{
-		app.Static("/","./client/dist")
+	if os.Getenv("ENV") == "production" {
+		fmt.Println("Serving static files from ./client/dist")
+		app.Static("/", "./client/dist")
 	}
+	
 
 	log.Fatal(app.Listen("0.0.0.0:"+PORT))
 }
