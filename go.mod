@@ -1,4 +1,4 @@
-module github.com/vinitshirbhate/go-to
+module github.com/vinitshirbhate/go-todo
 
 go 1.22.3
 
